@@ -11,7 +11,6 @@ import java.util.Scanner;
 @SpringBootApplication
 public class KafkaSandboxApplication implements CommandLineRunner {
 
-
 	@Autowired
 	private SandboxProducer producer;
 

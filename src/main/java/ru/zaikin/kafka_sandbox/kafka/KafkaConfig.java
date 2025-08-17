@@ -1,5 +1,6 @@
 package ru.zaikin.kafka_sandbox.kafka;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,11 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализация значений в String
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");       // Если оффсет не найден, читать с начала
         return new DefaultKafkaConsumerFactory<>(props); // Создаём фабрику консьюмеров с этими настройками
+    }
+
+    @Bean
+    public NewTopic sandboxTopic() {
+        return new NewTopic("sandbox-topic", 2, (short) 1); // 2 партиции, 1 реплика
     }
 
     @Bean

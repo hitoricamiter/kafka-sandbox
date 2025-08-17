@@ -19,6 +19,12 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
+    public NewTopic sandboxTopic() {
+        return new NewTopic("sandbox-topic", 2, (short) 1); // 2 партиции, 1 реплика
+    }
+
+
+    @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"); // Адрес Kafka-брокера
@@ -30,15 +36,29 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic sandboxTopic() {
-        return new NewTopic("sandbox-topic", 2, (short) 1); // 2 партиции, 1 реплика
-    }
-
-    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory()); // Подключаем фабрику консьюмеров к слушателям
+        return factory; // Бин, который Spring использует для @KafkaListener
+    }
+
+    @Bean
+    public ConsumerFactory<String, String> consumerFactory2() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"); // Адрес Kafka-брокера
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "sandbox-group2");           // ID группы консьюмеров
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализация ключей в String
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализация значений в String
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");       // Если оффсет не найден, читать с начала
+        return new DefaultKafkaConsumerFactory<>(props); // Создаём фабрику консьюмеров с этими настройками
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory2() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory2()); // Подключаем фабрику консьюмеров к слушателям
         return factory; // Бин, который Spring использует для @KafkaListener
     }
 
